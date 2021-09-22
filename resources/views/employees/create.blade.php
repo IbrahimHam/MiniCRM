@@ -23,20 +23,20 @@
             @csrf
                 <div class="form-group">
                     <label for="First Name">First Name:</label>
-                    <input name="fname" value="{{ old('fname') }}" type="name" class="form-control" placeholder="First Name">
-                    @error('name')
+                    <input name="first_name" value="{{ old('first_name') }}" type="name" class="form-control" placeholder="First Name">
+                    @error('first_name')
                     <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                     @enderror
                 </div>
 
                 <div class="form-group">
                     <label for="Last Name">Last Name:</label>
-                    <input name="lname" value="{{ old('lname') }}" type="name" class="form-control" placeholder="Last Name">
-                    @error('email')
+                    <input name="last_name" value="{{ old('last_name') }}" type="name" class="form-control" placeholder="Last Name">
+                    @error('last_name')
                     <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                     @enderror
                 </div>
-                
+
                 <div class="form-group">
                     <label for="Employee email">Email</label>
                     <input name="email" value="{{ old('email') }}" type="email" class="form-control" placeholder="Email">

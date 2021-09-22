@@ -4,133 +4,114 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Redirect;
+use App\Helpers\DatabaseChecker;
 
 class CompanyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $companies = Company::paginate(10);
 
-//        dd($companies);
-        return view('companies.index', ['companies' => $companies]);
-
+        return view('companies.index', compact('companies'));
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         return view('companies.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|max:25',
-            'email' => 'required|email:rfc,dns',
-            'logo' => 'required|mimes:jpg,png|dimensions:min_width=100,min_height=100',
-            'website' => 'required|url'
-        ]);
+        $name = $request->get('name');
+        $email = $request->get('email');
+        $website = $request->get('website');
 
-        if($request->hasFile('logo')) {
-            $logo = $request->file('logo');
-            $logo_name = $logo->getClientOriginalName();
-            $path = $request->file('logo')->storeAs('public/logos',$logo_name);
+        if (!$this->checkIfExist($request) && $this->isValid($request))
+        {
+            $company = Company::create([
+                'name' => $name,
+                'email' => $email,
+                'logo' => $request->hasFile('logo') ? $request->logo->store('logos', 'public') : '',
+                'website' => $website,
+            ]);
+            return redirect()
+                ->route('companies.index')
+                ->with('status','Company has been created successfully.');
         }
-
-        $company = Company::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'logo' => substr($path,7),
-            'website' => $request->website,
-        ]);
-
-        return redirect()->route('companies.index')
-            ->with('success','Company has been created successfully.');
+        return redirect()
+            ->route('companies.index')
+            ->with('status','A company is already having this email!');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
-     */
     public function show(Company $company)
     {
         return view('companies.show',compact('company'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Company $company)
     {
         return view('companies.edit',compact('company'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
+        $checker = Company::where('email', '=', $request->get('email'))->first();
+
+        if($checker !== null)
+        {
+            return redirect()
+                ->route('companies.edit', $checker)
+                ->with('status', 'A company is already created with this email!.');
+        }
 
         $request->validate([
-            // 'name' => 'required|max:25',
-            // 'email' => 'required|email:rfc,dns',
-            // 'logo' => 'required|mimes:jpg,png|dimensions:min_width=100,min_height=100',
-            // 'website' => 'required|url',
+             'name' => 'required|max:25',
+             'email' => 'required|email:rfc,dns',
+             'logo' => 'required|mimes:jpg,png|dimensions:min_width=100,min_height=100',
+             'website' => 'required|url',
         ]);
-
-
 
         $company = Company::find($id);
         $company->name = $request->name;
         $company->email = $request->email;
         if($request->hasFile('logo')) {
-            $logo = $request->file('logo');
-            $logo_name = $logo->getClientOriginalName();
-            $path = $request->file('logo')->storeAs('public/logos',$logo_name);
-            $company->logo = substr($path,7);
-
+            $path = $request->logo->store('public/logos');
         }
+        $company->logo = $path;
         $company->website = $request->website;
         $company->save();
-        return redirect()->route('companies.index')
+
+        return redirect()
+            ->route('companies.index')
             ->with('success','Company Has Been updated successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Company $company)
     {
         $company->delete();
-        return redirect()->route('companies.index')
+        Storage::delete('public/'.$company->logo);
+        return redirect()
+            ->route('companies.index')
             ->with('success','Company has been deleted successfully');
+    }
+
+    public function checkIfExist($request): bool
+    {
+        $checker = Company::where('email', '=', $request->get('email'))->first();
+
+        return (bool)$checker;
+    }
+
+    public function isValid($request): bool
+    {
+        $valid = $request->validate([
+            'name' => 'required|max:25',
+            'email' => 'required|email:rfc,dns',
+            'logo' => 'required|mimes:jpg,png|dimensions:min_width=100,min_height=100',
+            'website' => 'required|url'
+        ]);
+        return (bool)$valid;
     }
 }

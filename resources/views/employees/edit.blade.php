@@ -14,7 +14,7 @@
                 <div class="p-6 bg-white border-b border-gray-200">
 
                 @if(session('status'))
-            <div class="alert alert-success mb-1 mt-1">
+            <div class="alert alert-secondary mb-1 mt-1">
             {{ session('status') }}
             </div>
             @endif
@@ -37,7 +37,7 @@
                     <div class="alert alert-danger mt-1 mb-1">{{ $message }}</div>
                     @enderror
                 </div>
-                
+
                 <div class="form-group">
                     <label for="Employee email">Email</label>
                     <input name="email" type="email" value="{{ $employee->email }}" class="form-control" placeholder="Email">

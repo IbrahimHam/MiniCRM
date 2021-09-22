@@ -15,11 +15,12 @@
             </div>
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                @if ($message = Session::get('success'))
-                <div class="alert alert-success">
+                @if ($message = Session::get('status'))
+                <div class="alert alert-secondary">
                     <p>{{ $message }}</p>
                 </div>
                 @endif
+
                     <table class="table">
                         <thead>
                             <tr>
@@ -37,7 +38,7 @@
                                 <td>{{ $company->name }}</td>
                                 <td>{{ $company->email }}</td>
 
-                                <td><img height="50px" src="{{ asset('storage/'.$company->logo) }}" alt="" title=""></img></td>
+                                <td><img  src="{{ asset('storage/'.$company->logo) }}" height="50px" alt="" title=""></img></td>
                                 <td>{{ $company->website }}</td>
                                 <td>
                                     <form action="{{ route('companies.destroy',$company->id) }}" method="Post">

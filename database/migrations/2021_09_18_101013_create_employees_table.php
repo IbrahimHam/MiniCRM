@@ -15,10 +15,10 @@ class CreateEmployeesTable extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->string('fname');
-            $table->string('lname');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
-            $table->string('email')->unique();
+            $table->string('email');
             $table->string('phone');
             $table->timestamps();
         });

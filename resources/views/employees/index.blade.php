@@ -15,8 +15,8 @@
             </div>
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                @if ($message = Session::get('success'))
-                <div class="alert alert-success">
+                @if ($message = Session::get('status'))
+                <div class="alert alert-secondary">
                     <p>{{ $message }}</p>
                 </div>
                 @endif
@@ -35,8 +35,8 @@
                             @foreach ($employees as $employee)
                             <tr>
                                 <td>{{ $employee->id }}</td>
-                                <td>{{ $employee->fname }}</td>
-                                <td>{{ $employee->lname }}</td>
+                                <td>{{ $employee->first_name }}</td>
+                                <td>{{ $employee->last_name }}</td>
                                 <td>{{ $employee->companies->name}}</td>
                                 <td>{{ $employee->email }}</td>
                                 <td>{{ $employee->phone }}</td>
